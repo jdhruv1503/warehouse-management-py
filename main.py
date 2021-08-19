@@ -66,7 +66,13 @@ def updatePrices():
 
     print("Current prices are:", pricesDict)
     product = str(input("Which product to update price of? "))
-    newPrice = int(input("What should be the new price? "))
+    newPrice = abs(int(input("What should be the new price? ")))
+
+    # to make it case insensitive
+    for productKey in pricesDict.keys():
+        if productKey.lower() == product.lower():
+            product = productKey
+
     pricesDict[product] = newPrice
 
     with open("prices.dat", "wb") as pricesFile:
@@ -78,7 +84,13 @@ def addStock():
     print("The products are: ", stockDict)
 
     product = str(input("Which product to update stock from? "))
-    add = int(input("How much stock to add? "))
+    add = abs(int(input("How much stock to add? ")))
+
+    # to make it case insensitive
+    for productKey in stockDict.keys():
+        if productKey.lower() == product.lower():
+            product = productKey
+
     stockDict[product] += add
 
     with open("stock.dat", "wb") as stockFile:
@@ -92,7 +104,7 @@ def addVehicles():
         vehicles = pickle.load(vehicleFile)
 
     print("There are currently", vehicles, "vehicles.")
-    addedVehicles = int(input("How many vehicles have come back? "))
+    addedVehicles = abs(int(input("How many vehicles have come back? ")))
     vehicles += addedVehicles
 
     with open("vehicles.dat", "wb") as vehicleFile:
@@ -107,7 +119,12 @@ def removeStock():
     print("The products are: ", stockDict)
 
     product = str(input("Which product to update stock from? "))
-    remove = int(input("How much cargo to ship? "))
+    remove = abs(int(input("How much cargo to ship? ")))
+
+    # to make it case insensitive
+    for productKey in stockDict.keys():
+        if productKey.lower() == product.lower():
+            product = productKey
 
     if remove <= stockDict[product] and vehicles > 0:
         stockDict[product] -= remove
@@ -124,12 +141,15 @@ def removeStock():
             pricesDict = pickle.load(pricesFile)
 
             print()
+            gstRate = abs(int(input("Enter desired GST rate in %: ")))
+            print()
             print("--SALES INVOICE--")
             print("Product: ", product)
             print("Price per unit: ", pricesDict[product])
             print("Quantity sold: ", remove)
+            print("GST (at", gstRate, "%: ", (pricesDict[product] * remove * gstRate / 100))
             print("-----------------")
-            print("Total: ", (pricesDict[product] * remove))
+            print("Total: ", (pricesDict[product] * remove * (gstRate + 100) / 100))
             print()
 
     elif vehicles == 0:
@@ -141,6 +161,8 @@ def removeStock():
 
 def workerStatus():
     absentWorkerList = []
+    maxWorkerList = []
+    minWorkerList = []
     minHours = 24
     maxHours = 0
 
@@ -153,15 +175,19 @@ def workerStatus():
 
             elif workerRead[key] < minHours:
                 minHours = workerRead[key]
-                minWorker = key
 
             elif workerRead[key] > maxHours:
                 maxHours = workerRead[key]
-                maxWorker = key
+
+        for key in workerRead.keys():
+            if workerRead[key] == minHours:
+                minWorkerList.append(key)
+            elif workerRead[key] == maxHours:
+                maxWorkerList.append(key)
 
     print('List of absent workers today is: ', absentWorkerList)
-    print('The worker who has worked the most today is: ', maxWorker)
-    print('The worker who has worked the least today is: ', minWorker)
+    print('The workers who have worked the most today is: ', maxWorkerList)
+    print('The workers who have worked the least today is: ', minWorkerList)
 
 
 def workerUpdate():
@@ -173,7 +199,7 @@ def workerUpdate():
 
         for key in workerRead.keys():
             inputPrompt = "Enter the number of hours worked for employee " + key + ": "
-            hours = int(input(inputPrompt))
+            hours = abs(int(input(inputPrompt)))
             workerWrite[key] = hours
 
         pickle.dump(workerWrite, workerFile)
@@ -193,7 +219,6 @@ def workerWages():
 
 
 continueLoop = True
-
 print('----- LOGIN SCREEN -----')
 print()
 usernameInput = str(input("Enter username: "))
@@ -221,7 +246,7 @@ if isAdmin(usernameInput, passwordInput):
         print()
         print('0. Log out')
         print()
-        choiceA = int(input('Enter your choice (0-9): '))
+        choiceA = abs(int(input('Enter your choice (0-9): ')))
 
         if choiceA == 1:
             print()
@@ -230,63 +255,63 @@ if isAdmin(usernameInput, passwordInput):
             addAdmin(uname, passwd)
             print("Adding new user", uname, "successful.")
 
-            print("Enter any key to continue")
+            print("Press Enter to continue")
             input()
 
         elif choiceA == 2:
             print()
             workerStatus()
 
-            print("Enter any key to continue")
+            print("Press Enter to continue")
             input()
 
         elif choiceA == 3:
             print()
             workerUpdate()
 
-            print("Enter any key to continue")
+            print("Press Enter to continue")
             input()
 
         elif choiceA == 4:
             print()
             workerWages()
 
-            print("Enter any key to continue")
+            print("Press Enter to continue")
             input()
 
         elif choiceA == 5:
             print()
             updatePrices()
 
-            print("Enter any key to continue")
+            print("Press Enter to continue")
             input()
 
         elif choiceA == 6:
             print()
             print("Current stock is: ", checkStock())
 
-            print("Enter any key to continue")
+            print("Press Enter to continue")
             input()
 
         elif choiceA == 7:
             print()
             addStock()
 
-            print("Enter any key to continue")
+            print("Press Enter to continue")
             input()
 
         elif choiceA == 8:
             print()
             removeStock()
 
-            print("Enter any key to continue")
+            print("Press Enter to continue")
             input()
 
         elif choiceA == 9:
             print()
             addVehicles()
 
-            print("Enter any key to continue")
+            print("Press Enter to continue")
             input()
 
         elif choiceA == 0:

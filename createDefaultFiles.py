@@ -2,17 +2,17 @@ import pickle
 import csv
 
 fileO = open("workerlog.dat", "wb")
-dicta = {'WorkerA': 0, 'WorkerB': 10, 'WorkerC': 3, 'WorkerD': 0, 'WorkerE': 1, 'WorkerF': 9}
+dicta = {'Om Shinde': 7, 'Shivansh Raj': 9, 'Vishwa Patel': 0, 'Atharva Deshmukh': 3, 'Alika Ramchandran': 0, 'Janvee Jerukar': 4, 'Ranghunadan Sreenidhi': 5}
 pickle.dump(dicta, fileO)
 fileO.close()
 
 fileO = open("prices.dat", "wb")
-dicta = {'ProductA': 99, 'ProductB': 129, 'ProductC': 1029, 'ProductD': 999}
+dicta = {'GPU': 14499, 'RAM': 7599, 'HDD': 3599, 'Monitor': 13679, 'Printer': 8099, 'Mouse': 799, 'Keyboard': 549, 'Router': 6999, 'UPS': 12999}
 pickle.dump(dicta, fileO)
 fileO.close()
 
 fileO = open("stock.dat", "wb")
-dicta = {'ProductA': 50, 'ProductB': 41, 'ProductC': 10, 'ProductD': 0}
+dicta = {'GPU': 230, 'RAM': 129, 'HDD': 0, 'Monitor': 57, 'Printer': 92, 'Mouse': 309, 'Keyboard': 285, 'Router': 0, 'UPS': 56}
 pickle.dump(dicta, fileO)
 fileO.close()
 
@@ -24,7 +24,7 @@ fileO.close()
 fileO = open("logins.csv", "w", newline='')
 writer = csv.DictWriter(fileO, fieldnames=['Username', 'Password'])
 writer.writeheader()
-writer.writerow({'Username': 'paras_14', 'Password': 'Paras_ABC'})
-writer.writerow({'Username': 'dhruv_15', 'Password': 'Dhruv1503'})
-writer.writerow({'Username': 'hitesh_9', 'Password': 'Hitesh@1234'})
+writer.writerow({'Username': 'Akash', 'Password': 'warehouse.password@admin1'})
+writer.writerow({'Username': 'Bhumika', 'Password': 'whm.pass_admin2'})
+writer.writerow({'Username': 'Anant', 'Password': 'Anant_pass'})
 fileO.close()
