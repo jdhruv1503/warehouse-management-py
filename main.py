@@ -1,7 +1,7 @@
 import csv
 
 
-def isAdmin(username=None, password=None):
+def isAdmin(username, password):
     with open("admins.csv", "r") as adminFile:
         adminRead = csv.DictReader(adminFile)
         isValid = False
@@ -14,13 +14,13 @@ def isAdmin(username=None, password=None):
         return isValid
 
 
-def addAdmin(username=None, password=None):
+def addAdmin(username, password):
     with open("admins.csv", "a", newline='') as adminFile:
         adminWrite = csv.DictWriter(adminFile, ['Username', 'Password'])
         adminWrite.writerow({'Username': username, 'Password': password})
 
 
-def isWorker(username=None, password=None):
+def isWorker(username, password):
     with open("workers.csv", "r") as workerFile:
         workerRead = csv.DictReader(workerFile)
         isValid = False
@@ -33,11 +33,39 @@ def isWorker(username=None, password=None):
         return isValid
 
 
-def addWorker(username=None, password=None):
+def addWorker(username, password):
     with open("workers.csv", "a", newline='') as workerFile:
         workerWrite = csv.DictWriter(workerFile, ['Username', 'Password'])
         workerWrite.writerow({'Username': username, 'Password': password})
 
+
+def workerstatus():
+
+    l=[]
+    minHours = 24
+    maxHours = 0
+
+    with open('workerlog.csv','r') as workerFile:
+        workerRead = csv.DictReader(workerFile)
+
+        for line in workerRead:
+            if line['workerHours'] == '0':
+                a=line['workerName']
+                l.append(a)
+
+            elif ( int(line['workerHours']) < minHours ):
+                minHours = int(line['workerHours'])
+                minWorker = line['workerName']
+
+            elif ( int(line['workerHours']) > maxHours ):
+                maxHours = int(line['workerHours'])
+                maxWorker = line['workerName']
+
+        print('List of absent workers today is: ',l)
+        print('The worker who has worked the most today is: ', maxWorker)
+        print('The worker who has worked the least today is: ', minWorker)
+
+#-------------------------------------------------------------------------------------------------------
 
 print('----- LOGIN SCREEN -----')
 print('---Enter your choice:---')
@@ -56,8 +84,27 @@ if choice == 1:
     print()
 
     if isAdmin(username, password):
+        # ADMINISTRATOR FUNCTIONS
         print('Access granted.')
-        # HERE is where the fun begins. This is where we will add all admin functions like addAdmin and addWorker
+        print()
+        print('1. Add an Administrator account')
+        print('2. Add a Worker account')
+        print('3. View worker status and today\'s statistics')
+        print()
+        choiceA = int(input('Enter your choice (1/2/3): '))
+
+        if choiceA == 1:
+            uname = str(input("Enter the new user's username: "))
+            passwd = str(input("Enter the new user's password: "))
+            addAdmin(uname, passwd)
+
+        elif choiceA == 2:
+            uname = str(input("Enter the new user's username: "))
+            passwd = str(input("Enter the new user's password: "))
+            addWorker(uname, passwd)
+
+        elif choiceA == 3:
+            workerstatus()
 
     else:
         print('Wrong username and/or password. The program will now exit.')
