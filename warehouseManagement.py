@@ -199,7 +199,7 @@ def workerUpdate():
 
         for key in workerRead.keys():
             inputPrompt = "Enter the number of hours worked for employee " + key + ": "
-            hours = abs(int(input(inputPrompt)))
+            hours = min(24,abs(int(input(inputPrompt))))
             workerWrite[key] = hours
 
         pickle.dump(workerWrite, workerFile)
