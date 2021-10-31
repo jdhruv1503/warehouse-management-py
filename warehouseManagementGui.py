@@ -1,17 +1,18 @@
 from tkinter import *
 import pickle
+import random
 
-# ------------------- Some UI constants used to style buttons, text, etc. ---------------------
+# Some UI constants used to style buttons, text, etc.
 
 BACKGROUND_COL = '#212630'
 FOREGROUND_COL = '#D9D9D9'
-BUTTON_COL = '#5939F9'
+BUTTON_COL = '#6047DE'
 BUTTON_COL_RED = '#DE2929'
 TITLE_FONT = 'Poppins Black'
 BODY_FONT = 'Poppins Regular'
 
 
-# ------------------- Some generic prompts used throughout the program --------------------------
+# Some generic prompts used throughout the program
 
 def successPrompt(message):
     successPopup = Tk()
@@ -23,7 +24,7 @@ def successPrompt(message):
     successPopup.grid_rowconfigure(0, weight=1)
     successPopup.grid_rowconfigure(1, weight=1)
 
-    textLabel = Label(successPopup, text=message, bg=BACKGROUND_COL, fg=FOREGROUND_COL, font=(BODY_FONT, 20)).grid(
+    textLabel = Label(successPopup, text=message, bg=BACKGROUND_COL, fg=FOREGROUND_COL, font=(BODY_FONT, 15)).grid(
         row=0, column=0)
     okButton = Button(successPopup, text="OK", command=successPopup.destroy, bg=BUTTON_COL, fg=FOREGROUND_COL,
                       font=(BODY_FONT, 15)).grid(row=1, column=0)
@@ -41,7 +42,7 @@ def failurePrompt(message):
     failPopup.grid_rowconfigure(0, weight=1)
     failPopup.grid_rowconfigure(1, weight=1)
 
-    textLabel = Label(failPopup, text=message, bg=BACKGROUND_COL, fg=FOREGROUND_COL, font=(BODY_FONT, 20)).grid(row=0,
+    textLabel = Label(failPopup, text=message, bg=BACKGROUND_COL, fg=FOREGROUND_COL, font=(BODY_FONT, 15)).grid(row=0,
                                                                                                                 column=0)
     okButton = Button(failPopup, text="OK", command=failPopup.destroy, bg=BUTTON_COL, fg=FOREGROUND_COL,
                       font=(BODY_FONT, 15)).grid(row=1, column=0)
@@ -49,7 +50,7 @@ def failurePrompt(message):
     failPopup.mainloop()
 
 
-# ------------------- Some generic vehicle functions used throughout the program --------------------------
+# Some generic vehicle functions used throughout the program, and an invoice generator
 
 def checkVehicles():
     with open("vehicles.dat", "rb") as vehicleFile:
@@ -64,7 +65,49 @@ def removeOneVehicle():
         pickle.dump(newVehicles, vehicleFile)
 
 
-# ---------------------------------------- Adding accounts -----------------------------------------
+def generateInvoice(ordersList):
+    invoiceNo = random.randint(100000, 999999)
+
+    with open("prices.dat", "rb") as priceFile:
+        pricesDict = pickle.load(priceFile)
+
+    ordersDict = {}
+    n = 0
+    for item in pricesDict.keys():
+        ordersDict[item] = int(ordersList[n])
+        n += 1
+
+    with open('Invoice.txt', 'w') as invoiceFile:
+
+        headerString = "------------------" + '\n' + "Warehouse Management" + '\n' + 'Invoice No.' + str(
+            invoiceNo) + '\n' + "------------------" + '\n'
+        invoiceFile.write(headerString)
+
+        nonZeroOrders = {}
+
+        for i in ordersDict.keys():
+            if ordersDict[i] != 0:
+                nonZeroOrders[i] = ordersDict[i]
+
+        totalAmt = 0
+        for i in nonZeroOrders.keys():
+            invoiceString = 'Product: ' + str(i) + '\n' + 'Price per Unit: ' + str(
+                pricesDict[i]) + '\n' + 'Number of Goods: ' + str(
+                nonZeroOrders[i]) + '\n' + "------------------" + '\n'
+
+            invoiceFile.write(invoiceString)
+            totalAmt += (pricesDict[i] * nonZeroOrders[i])
+
+        gstRate = 18
+
+        totalsString = 'Total Cost of Goods = ' + str(totalAmt) + '\n' + 'GST applicable = ' + str(
+            totalAmt * gstRate / 100) + '\n' + "------------------" + '\n' + 'Final Cost = ' + str(
+            totalAmt + (totalAmt * gstRate / 100))
+
+        invoiceFile.write(totalsString)
+
+
+#  Adding accounts
 
 def addAccountPrompt():
     addAccWindow = Tk()
@@ -79,21 +122,28 @@ def addAccountPrompt():
     addAccWindow.grid_rowconfigure(2, weight=1)
     addAccWindow.grid_rowconfigure(3, weight=1)
 
-    usernameAddLabel = Label(addAccWindow, text="Username", font=(BODY_FONT,15), bg=BACKGROUND_COL, fg=FOREGROUND_COL).grid(row=0, column=0)
+    usernameAddLabel = Label(addAccWindow, text="Username", font=(BODY_FONT, 15), bg=BACKGROUND_COL,
+                             fg=FOREGROUND_COL).grid(row=0, column=0)
     usernameAdd = StringVar(addAccWindow)
-    usernameAddEntry = Entry(addAccWindow, textvariable=usernameAdd, font=(BODY_FONT,15), bg=BACKGROUND_COL, fg=FOREGROUND_COL).grid(row=0, column=1)
+    usernameAddEntry = Entry(addAccWindow, textvariable=usernameAdd, font=(BODY_FONT, 15), bg=BACKGROUND_COL,
+                             fg=FOREGROUND_COL).grid(row=0, column=1)
 
-    passwordAddLabel = Label(addAccWindow, text="Password", font=(BODY_FONT,15), bg=BACKGROUND_COL, fg=FOREGROUND_COL).grid(row=1, column=0)
+    passwordAddLabel = Label(addAccWindow, text="Password", font=(BODY_FONT, 15), bg=BACKGROUND_COL,
+                             fg=FOREGROUND_COL).grid(row=1, column=0)
     passwordAdd = StringVar(addAccWindow)
-    passwordAddEntry = Entry(addAccWindow, textvariable=passwordAdd, show='*', font=(BODY_FONT,15), bg=BACKGROUND_COL, fg=FOREGROUND_COL).grid(row=1, column=1)
+    passwordAddEntry = Entry(addAccWindow, textvariable=passwordAdd, show='*', font=(BODY_FONT, 15), bg=BACKGROUND_COL,
+                             fg=FOREGROUND_COL).grid(row=1, column=1)
 
-    passwordConfirmLabel = Label(addAccWindow, text="Confirm password", font=(BODY_FONT,15), bg=BACKGROUND_COL, fg=FOREGROUND_COL).grid(row=2, column=0)
+    passwordConfirmLabel = Label(addAccWindow, text="Confirm password", font=(BODY_FONT, 15), bg=BACKGROUND_COL,
+                                 fg=FOREGROUND_COL).grid(row=2, column=0)
     password2Add = StringVar(addAccWindow)
-    passwordConfirmEntry = Entry(addAccWindow, textvariable=password2Add, show='*', font=(BODY_FONT,15), bg=BACKGROUND_COL, fg=FOREGROUND_COL).grid(row=2, column=1)
+    passwordConfirmEntry = Entry(addAccWindow, textvariable=password2Add, show='*', font=(BODY_FONT, 15),
+                                 bg=BACKGROUND_COL, fg=FOREGROUND_COL).grid(row=2, column=1)
 
     addButton = Button(addAccWindow, text="Add a new account",
-                       command=lambda: addAccount(usernameAdd, passwordAdd, password2Add), font=(BODY_FONT, 15), bg=BUTTON_COL, fg=FOREGROUND_COL, bd=0).grid(row=3,
-                                                                                                column=0)
+                       command=lambda: addAccount(usernameAdd, passwordAdd, password2Add), font=(BODY_FONT, 15),
+                       bg=BUTTON_COL, fg=FOREGROUND_COL, bd=0).grid(row=3,
+                                                                    column=0)
 
     addAccWindow.mainloop()
 
@@ -114,7 +164,7 @@ def addAccount(usernameAddArg, passwordAddArg, password2AddArg):
         failurePrompt("Passwords do not match!")
 
 
-# ----------------------------------------- Remove an account -----------------------------------------
+# Removing accounts
 
 def removeAccountPrompt():
     removeAccWindow = Tk()
@@ -129,17 +179,22 @@ def removeAccountPrompt():
     removeAccWindow.grid_rowconfigure(2, weight=1)
     removeAccWindow.grid_rowconfigure(3, weight=1)
 
-    usernameAddLabel = Label(removeAccWindow, text="Username", font=(BODY_FONT,15), bg=BACKGROUND_COL, fg=FOREGROUND_COL).grid(row=0, column=0)
+    usernameAddLabel = Label(removeAccWindow, text="Username", font=(BODY_FONT, 15), bg=BACKGROUND_COL,
+                             fg=FOREGROUND_COL).grid(row=0, column=0)
     usernameAdd = StringVar(removeAccWindow)
-    usernameAddEntry = Entry(removeAccWindow, textvariable=usernameAdd, font=(BODY_FONT,15), bg=BACKGROUND_COL, fg=FOREGROUND_COL).grid(row=0, column=1)
+    usernameAddEntry = Entry(removeAccWindow, textvariable=usernameAdd, font=(BODY_FONT, 15), bg=BACKGROUND_COL,
+                             fg=FOREGROUND_COL).grid(row=0, column=1)
 
-    passwordAddLabel = Label(removeAccWindow, text="Password", font=(BODY_FONT,15), bg=BACKGROUND_COL, fg=FOREGROUND_COL).grid(row=1, column=0)
+    passwordAddLabel = Label(removeAccWindow, text="Password", font=(BODY_FONT, 15), bg=BACKGROUND_COL,
+                             fg=FOREGROUND_COL).grid(row=1, column=0)
     passwordAdd = StringVar(removeAccWindow)
-    passwordAddEntry = Entry(removeAccWindow, textvariable=passwordAdd, show='*', font=(BODY_FONT,15), bg=BACKGROUND_COL, fg=FOREGROUND_COL).grid(row=1, column=1)
+    passwordAddEntry = Entry(removeAccWindow, textvariable=passwordAdd, show='*', font=(BODY_FONT, 15),
+                             bg=BACKGROUND_COL, fg=FOREGROUND_COL).grid(row=1, column=1)
 
     addButton = Button(removeAccWindow, text="Remove account",
-                       command=lambda: removeAccount(usernameAdd, passwordAdd), font=(BODY_FONT, 15), bg=BUTTON_COL_RED , fg=FOREGROUND_COL, bd=0).grid(row=3,
-                                                                                     column=0)
+                       command=lambda: removeAccount(usernameAdd, passwordAdd), font=(BODY_FONT, 15), bg=BUTTON_COL_RED,
+                       fg=FOREGROUND_COL, bd=0).grid(row=3,
+                                                     column=0)
 
     removeAccWindow.mainloop()
 
@@ -164,7 +219,7 @@ def removeAccount(usernameAddArg, passwordAddArg):
         failurePrompt("User does not exist!")
 
 
-# ----------------------------------------- View worker status -----------------------------------------
+# View worker status
 
 def viewWorkerPrompt():
     absentWorkerList = []
@@ -217,7 +272,7 @@ def viewWorkerPrompt():
     workerStatWindow.mainloop()
 
 
-# ----------------------------------------- Updating workers -----------------------------------------
+# Updating workers
 
 def updateWorker(keysArg, valuesArg):
     intsList = []
@@ -266,7 +321,7 @@ def updateWorkerPrompt():
     updWorkerWindow.mainloop()
 
 
-# ----------------------------------------- Calculating worker wages -----------------------------------------
+# Calculating worker wages
 
 def workerWagePrompt():
     hourlyRateWindow = Tk()
@@ -321,7 +376,7 @@ def workerWageDisplay(rateValue):
     wageWindow.mainloop()
 
 
-# ----------------------------------------- Updating prices (identical syntax as that of updating worker values above)
+# Updating prices (identical syntax as that of updating worker values above)
 
 def updatePrices(keysArg, valuesArg):
     intsList = []
@@ -368,7 +423,7 @@ def updatePricePrompt():
     updPriceWindow.mainloop()
 
 
-# ----------------------------------------- View current stock -----------------------------------------
+# View current stock
 
 def viewStockPrompt():
     with open('stock.dat', 'rb') as stockFile:
@@ -398,7 +453,7 @@ def viewStockPrompt():
     viewStockWindow.mainloop()
 
 
-# ----------------------------------------- Add stock -----------------------------------------
+# Add stock
 
 def addStock(valuesArg):
     values = []
@@ -450,7 +505,7 @@ def addStockPrompt():
     addStockWindow.mainloop()
 
 
-# ----------------------------------------- Remove stock -----------------------------------------
+# Remove stock
 
 def removeStock(valuesArg):
     availableVehicles = checkVehicles()
@@ -467,7 +522,7 @@ def removeStock(valuesArg):
         n = 0
 
         for key in stockRead:
-            if (stockRead[key] < int(values[n])):
+            if stockRead[key] < int(values[n]):
                 isValidTransaction = False
             n += 1
 
@@ -487,8 +542,10 @@ def removeStock(valuesArg):
             pickle.dump(stockRead, stockFile)
 
         removeOneVehicle()
+        generateInvoice(values)
 
-        successPrompt("Stock has been shipped!\nNow there are " + str(checkVehicles()) + " vehicles available.")
+        successPrompt("Stock has been shipped!\nNow there are " + str(
+            checkVehicles()) + " vehicles available.\nInvoice.txt has been generated.")
 
     elif not isValidTransaction:
         failurePrompt("There is not enough stock!")
@@ -526,7 +583,7 @@ def removeStockPrompt():
     removeStockWindow.mainloop()
 
 
-# ----------------------------------------- Add vehicles -----------------------------------------
+# Add vehicles
 
 def addVehicles(vehiclesToAdd):
     if int(vehiclesToAdd.get()) > 0:
@@ -571,7 +628,7 @@ def addVehiclesPrompt():
     vehicleWindow.mainloop()
 
 
-# ------------------------------- MAIN MENU ------------------------------------
+# ------------------------------- MAIN MENU
 
 def initializeMainMenu(usernameArg):
     mainMenu = Tk()
@@ -586,43 +643,45 @@ def initializeMainMenu(usernameArg):
         mainMenu.grid_rowconfigure(rowCounter, weight=1)
 
     labelTitle = Label(mainMenu, text="Warehouse Management", font=(TITLE_FONT, 45), bg=BACKGROUND_COL,
-                       fg=FOREGROUND_COL).grid(row=0, column=1)
+                       fg=FOREGROUND_COL).grid(row=0, column=1, pady=2)
 
     button1 = Button(mainMenu, text="Add an account", font=(BODY_FONT, 15), bg=BUTTON_COL, fg=FOREGROUND_COL, bd=0,
-                     command=addAccountPrompt).grid(row=1, column=1)
+                     command=addAccountPrompt).grid(row=1, column=1, pady=2)
     button2 = Button(mainMenu, text="Remove an account", font=(BODY_FONT, 15), bg=BUTTON_COL, fg=FOREGROUND_COL, bd=0,
-                     command=removeAccountPrompt).grid(row=2, column=1)
+                     command=removeAccountPrompt).grid(row=2, column=1, pady=2)
 
     spacer1 = Label(mainMenu, text="  ", font=(TITLE_FONT, 10), bg=BACKGROUND_COL, fg=FOREGROUND_COL).grid(row=3,
                                                                                                            column=0)
     button3 = Button(mainMenu, text="View worker status", font=(BODY_FONT, 15), bg=BUTTON_COL, fg=FOREGROUND_COL, bd=0,
-                     command=viewWorkerPrompt).grid(row=4, column=1)
+                     command=viewWorkerPrompt).grid(row=4, column=1, pady=2)
     button4 = Button(mainMenu, text="Update worker attendance", font=(BODY_FONT, 15), bg=BUTTON_COL, fg=FOREGROUND_COL,
-                     bd=0, command=updateWorkerPrompt).grid(row=5, column=1)
+                     bd=0, command=updateWorkerPrompt).grid(row=5, column=1, pady=2)
     button5 = Button(mainMenu, text="Calculate worker wages", font=(BODY_FONT, 15), bg=BUTTON_COL, fg=FOREGROUND_COL,
-                     bd=0, command=workerWagePrompt).grid(row=6, column=1)
+                     bd=0, command=workerWagePrompt).grid(row=6, column=1, pady=2)
 
     spacer2 = Label(mainMenu, text="  ", font=(TITLE_FONT, 10), bg=BACKGROUND_COL, fg=FOREGROUND_COL).grid(row=7,
                                                                                                            column=0)
     button6 = Button(mainMenu, text="Update price of stock", font=(BODY_FONT, 15), bg=BUTTON_COL, fg=FOREGROUND_COL,
-                     bd=0, command=updatePricePrompt).grid(row=8, column=1)
+                     bd=0, command=updatePricePrompt).grid(row=8, column=1, pady=2)
     button7 = Button(mainMenu, text="Check current stock", font=(BODY_FONT, 15), bg=BUTTON_COL, fg=FOREGROUND_COL, bd=0,
-                     command=viewStockPrompt).grid(row=9, column=1)
+                     command=viewStockPrompt).grid(row=9, column=1, pady=2)
     button8 = Button(mainMenu, text="Received shipment (add stock)", font=(BODY_FONT, 15), bg=BUTTON_COL,
-                     fg=FOREGROUND_COL, bd=0, command=addStockPrompt).grid(row=10, column=1)
+                     fg=FOREGROUND_COL, bd=0, command=addStockPrompt).grid(row=10, column=1, pady=2)
     button9 = Button(mainMenu, text="Ship cargo and generate invoice (remove stock)", font=(BODY_FONT, 15),
                      bg=BUTTON_COL, fg=FOREGROUND_COL, bd=0, command=removeStockPrompt).grid(
         row=11,
-        column=1)
+        column=1, pady=2)
 
     spacer3 = Label(mainMenu, text="  ", font=(TITLE_FONT, 15), bg=BACKGROUND_COL, fg=FOREGROUND_COL).grid(row=12,
-                                                                                                           column=1)
+                                                                                                           column=1,
+                                                                                                           pady=2)
     button10 = Button(mainMenu, text="Check and add vehicles (if vehicles have completed journey and returned)",
                       font=(BODY_FONT, 15), bg=BUTTON_COL, fg=FOREGROUND_COL, bd=0, command=addVehiclesPrompt).grid(
-        row=13, column=1)
+        row=13, column=1, pady=2)
 
     spacer4 = Label(mainMenu, text="  ", font=(TITLE_FONT, 10), bg=BACKGROUND_COL, fg=FOREGROUND_COL).grid(row=14,
-                                                                                                           column=1)
+                                                                                                           column=1,
+                                                                                                           pady=2)
     labelLogIn = Label(mainMenu, text="Logged in as:", font=(BODY_FONT, 15), bg=BACKGROUND_COL, fg=FOREGROUND_COL).grid(
         row=15, column=0)
     labelLogIn2 = Label(mainMenu, text=usernameArg, font=(BODY_FONT, 15), bg=BACKGROUND_COL, fg=FOREGROUND_COL).grid(
@@ -630,12 +689,10 @@ def initializeMainMenu(usernameArg):
     button11 = Button(mainMenu, text="Log out", command=mainMenu.destroy, font=(BODY_FONT, 15), bg=BUTTON_COL_RED,
                       fg=FOREGROUND_COL, bd=0).grid(row=15, column=2)
 
-    #  implement out of stock and too much stock checks here and add lines of text!
-
     mainMenu.mainloop()
 
 
-# ------------------------------- LOGIN AUTHORIZATION------------------------------------
+# --------------- LOGIN AUTHORIZATION
 
 def loginAuth(usernameArg, passwordArg):
     with open("logins.dat", "rb") as adminFile:
@@ -656,7 +713,7 @@ def loginAuth(usernameArg, passwordArg):
         failurePrompt("Invalid credentials!")
 
 
-# MAIN BODY, Basically the login window only. It calls the main menu when authorized, which in turn calls all other functions.
+# MAIN BODY, Basically the login window only.
 
 loginWindow = Tk()
 loginWindow.geometry('425x550')
